@@ -216,7 +216,7 @@ pub fn expand(table_def: SqlTable) -> TokenStream {
     // Generate the impl block
     quote! {
         impl #struct_name {
-            pub fn create_table() -> String {
+            pub fn create_table_query() -> String {
                 #create_table_sql.to_string()
             }
 

@@ -18,4 +18,5 @@ struct User {
 fn main() {
     println!("{}", User::find_by_id_query());
     println!("{}", User::insert_query());
+    println!("{}", User::create_table_query());
 }
