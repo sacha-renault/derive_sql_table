@@ -13,7 +13,7 @@ pub struct SqlTable {
     pub name: Option<String>,
 
     #[darling(default)]
-    pub create_if_exists: bool,
+    pub if_not_exists: bool,
 }
 
 #[derive(Debug, FromField)]
@@ -55,15 +55,6 @@ pub struct TableColumn {
 
     #[darling(default)]
     pub on_delete: Option<String>,
-    //
-    // OPTION FOR GENERATING GETTER AND EVERYTHING ...
-    //
-
-    // #[darling(default)]
-    // pub getter: bool,
-
-    // #[darling(default)]
-    // pub exclude_insert: bool,
 }
 
 pub struct ForeignKeyConstraint {

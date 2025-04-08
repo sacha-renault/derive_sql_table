@@ -3,7 +3,7 @@ use derive_sql_table::SqlTable;
 struct NaiveDateTime {}
 
 #[derive(SqlTable)]
-#[sql_table(name = "users", create_if_exists)]
+#[sql_table(name = "users", if_not_exists)]
 struct User {
     #[sql_column(primary_key, auto_increment)]
     pub id: i64,

@@ -3,10 +3,8 @@ use data::SqlTable;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
-#[allow(dead_code)]
 mod data;
 mod expand;
-mod parse;
 
 #[proc_macro_derive(SqlTable, attributes(sql_table, sql_column))]
 pub fn sql_model_macro(input: TokenStream) -> TokenStream {

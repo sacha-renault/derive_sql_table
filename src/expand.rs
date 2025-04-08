@@ -84,14 +84,22 @@ fn field_to_sql_column(field: &TableColumn) -> String {
 }
 
 fn generate_create_table_sql(
+    create_if_exists: bool,
     table_name: &str,
     columns: &[String],
     primary_keys: &[String],
     foreign_keys: &[ForeignKeyConstraint],
 ) -> String {
-    let mut sql = format!("CREATE TABLE IF NOT EXISTS {} (\n", table_name);
+    // Init the create table statement
+    let mut sql = "CREATE TABLE".to_string();
+
+    // add the if exists logic
+    if create_if_exists {
+        sql.push_str(" IF NOT EXISTS");
+    }
 
     // Add columns
+    sql.push_str(&format!(" {} (\n", table_name));
     sql.push_str(&columns.join(",\n"));
 
     // Add primary key constraint if exists
@@ -122,48 +130,6 @@ fn generate_create_table_sql(
 
     sql
 }
-
-// fn generate_getters(field: &TableColumn, table_name: &str) -> Option<TokenStream> {
-//     if !field.getter {
-//         None
-//     } else {
-//         // Create the function name
-//         let field_name = field
-//             .ident
-//             .clone()
-//             .unwrap()
-//             .to_string()
-//             .to_case(Case::Snake);
-
-//         let func_name = format_ident!("find_by_{}_query", field_name);
-
-//         let getter = quote! {
-//             pub fn #func_name() -> String {
-//                 format!("SELECT * FROM {} WHERE {} = ?", #table_name, #field_name)
-//             }
-//         };
-
-//         Some(getter)
-//     }
-// }
-
-// fn generate_insert(fields: Vec<&TableColumn>, table_name: &str) -> Option<TokenStream> {
-//     // Get field that will be inserted
-//     let fields_to_insert = fields
-//         .iter()
-//         .filter(|field| !field.auto_increment && !field.exclude_insert)
-//         .map(|field| field.ident.clone().unwrap().to_string())
-//         .collect::<Vec<_>>();
-//     let values = vec!["?"; fields_to_insert.len()].join(", ");
-//     let names = fields_to_insert.join(", ");
-//     let insert_query = format!("INSERT INTO {} ({}) VALUES ({})", table_name, names, values);
-//     let query = quote! {
-//         pub fn insert_query() -> String {
-//             #insert_query.to_string()
-//         }
-//     };
-//     Some(query)
-// }
 
 pub fn expand(table_def: SqlTable) -> TokenStream {
     // Struct name
@@ -203,15 +169,13 @@ pub fn expand(table_def: SqlTable) -> TokenStream {
         .collect::<Vec<_>>();
 
     // Generate the CREATE TABLE SQL
-    let create_table_sql =
-        generate_create_table_sql(&table_name, &columns, &primary_keys, &foreign_keys);
-
-    // Generate getters
-    // let getters = fields
-    //     .iter()
-    //     .filter_map(|f| generate_getters(f, &table_name))
-    //     .collect::<Vec<_>>();
-    // let insert_query = generate_insert(fields.iter().collect(), &table_name);
+    let create_table_sql = generate_create_table_sql(
+        table_def.if_not_exists,
+        &table_name,
+        &columns,
+        &primary_keys,
+        &foreign_keys,
+    );
 
     // Generate the impl block
     quote! {
@@ -223,10 +187,6 @@ pub fn expand(table_def: SqlTable) -> TokenStream {
             pub fn table_name() -> &'static str {
                 #table_name
             }
-
-            // #(#getters)*
-
-            // #insert_query
         }
     }
 }
