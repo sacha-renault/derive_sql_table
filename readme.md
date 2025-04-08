@@ -1,4 +1,4 @@
-# sql-column
+# derive_sql_table
 
 A simple Rust macro for generating SQL table definitions from structs.
 
