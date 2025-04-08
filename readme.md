@@ -9,7 +9,7 @@ This crate provides a `#[derive(SqlTable)]` macro that lets you define database 
 ## Usage
 
 ```rust
-use sql_column::SqlTable;
+use derive_sql_table::SqlTable;
 
 #[derive(SqlTable)]
 #[sql_table(name = "users", if_not_exists)]
