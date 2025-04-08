@@ -55,16 +55,15 @@ pub struct TableColumn {
 
     #[darling(default)]
     pub on_delete: Option<String>,
+    //
+    // OPTION FOR GENERATING GETTER AND EVERYTHING ...
+    //
 
-    ///
-    /// OPTION FOR GENERATING GETTER AND EVERYTHING
-    ///
+    // #[darling(default)]
+    // pub getter: bool,
 
-    #[darling(default)]
-    pub getter: bool,
-
-    #[darling(default)]
-    pub exclude_insert: bool,
+    // #[darling(default)]
+    // pub exclude_insert: bool,
 }
 
 pub struct ForeignKeyConstraint {

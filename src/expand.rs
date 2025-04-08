@@ -1,6 +1,6 @@
 use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::Type;
 
 use crate::data::{ForeignKeyConstraint, SqlTable, TableColumn};
@@ -123,47 +123,47 @@ fn generate_create_table_sql(
     sql
 }
 
-fn generate_getters(field: &TableColumn, table_name: &str) -> Option<TokenStream> {
-    if !field.getter {
-        None
-    } else {
-        // Create the function name
-        let field_name = field
-            .ident
-            .clone()
-            .unwrap()
-            .to_string()
-            .to_case(Case::Snake);
+// fn generate_getters(field: &TableColumn, table_name: &str) -> Option<TokenStream> {
+//     if !field.getter {
+//         None
+//     } else {
+//         // Create the function name
+//         let field_name = field
+//             .ident
+//             .clone()
+//             .unwrap()
+//             .to_string()
+//             .to_case(Case::Snake);
 
-        let func_name = format_ident!("find_by_{}_query", field_name);
+//         let func_name = format_ident!("find_by_{}_query", field_name);
 
-        let getter = quote! {
-            pub fn #func_name() -> String {
-                format!("SELECT * FROM {} WHERE {} = ?", #table_name, #field_name)
-            }
-        };
+//         let getter = quote! {
+//             pub fn #func_name() -> String {
+//                 format!("SELECT * FROM {} WHERE {} = ?", #table_name, #field_name)
+//             }
+//         };
 
-        Some(getter)
-    }
-}
+//         Some(getter)
+//     }
+// }
 
-fn generate_insert(fields: Vec<&TableColumn>, table_name: &str) -> Option<TokenStream> {
-    // Get field that will be inserted
-    let fields_to_insert = fields
-        .iter()
-        .filter(|field| !field.auto_increment && !field.exclude_insert)
-        .map(|field| field.ident.clone().unwrap().to_string())
-        .collect::<Vec<_>>();
-    let values = vec!["?"; fields_to_insert.len()].join(", ");
-    let names = fields_to_insert.join(", ");
-    let insert_query = format!("INSERT INTO {} ({}) VALUES ({})", table_name, names, values);
-    let query = quote! {
-        pub fn insert_query() -> String {
-            #insert_query.to_string()
-        }
-    };
-    Some(query)
-}
+// fn generate_insert(fields: Vec<&TableColumn>, table_name: &str) -> Option<TokenStream> {
+//     // Get field that will be inserted
+//     let fields_to_insert = fields
+//         .iter()
+//         .filter(|field| !field.auto_increment && !field.exclude_insert)
+//         .map(|field| field.ident.clone().unwrap().to_string())
+//         .collect::<Vec<_>>();
+//     let values = vec!["?"; fields_to_insert.len()].join(", ");
+//     let names = fields_to_insert.join(", ");
+//     let insert_query = format!("INSERT INTO {} ({}) VALUES ({})", table_name, names, values);
+//     let query = quote! {
+//         pub fn insert_query() -> String {
+//             #insert_query.to_string()
+//         }
+//     };
+//     Some(query)
+// }
 
 pub fn expand(table_def: SqlTable) -> TokenStream {
     // Struct name
@@ -207,11 +207,11 @@ pub fn expand(table_def: SqlTable) -> TokenStream {
         generate_create_table_sql(&table_name, &columns, &primary_keys, &foreign_keys);
 
     // Generate getters
-    let getters = fields
-        .iter()
-        .filter_map(|f| generate_getters(f, &table_name))
-        .collect::<Vec<_>>();
-    let insert_query = generate_insert(fields.iter().collect(), &table_name);
+    // let getters = fields
+    //     .iter()
+    //     .filter_map(|f| generate_getters(f, &table_name))
+    //     .collect::<Vec<_>>();
+    // let insert_query = generate_insert(fields.iter().collect(), &table_name);
 
     // Generate the impl block
     quote! {
@@ -224,9 +224,9 @@ pub fn expand(table_def: SqlTable) -> TokenStream {
                 #table_name
             }
 
-            #(#getters)*
+            // #(#getters)*
 
-            #insert_query
+            // #insert_query
         }
     }
 }

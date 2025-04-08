@@ -5,7 +5,7 @@ struct NaiveDateTime {}
 #[derive(SqlTable)]
 #[sql_table(name = "users", create_if_exists)]
 struct User {
-    #[sql_column(primary_key, auto_increment, getter)]
+    #[sql_column(primary_key, auto_increment)]
     pub id: i64,
 
     #[sql_column(column_type = "TIMESTAMP")]
@@ -16,7 +16,5 @@ struct User {
 }
 
 fn main() {
-    println!("{}", User::find_by_id_query());
-    println!("{}", User::insert_query());
     println!("{}", User::create_table_query());
 }
