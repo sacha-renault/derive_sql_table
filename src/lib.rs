@@ -8,7 +8,7 @@ mod data;
 mod expand;
 mod parse;
 
-#[proc_macro_derive(SqlTable, attributes(sql_table, primary_key, column_type))]
+#[proc_macro_derive(SqlTable, attributes(sql_table))]
 pub fn sql_model_macro(input: TokenStream) -> TokenStream {
     // Parse input
     let input = parse_macro_input!(input as DeriveInput);
