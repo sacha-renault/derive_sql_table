@@ -8,7 +8,7 @@ mod data;
 mod expand;
 mod parse;
 
-#[proc_macro_derive(SqlTable, attributes(sql_table))]
+#[proc_macro_derive(SqlTable, attributes(sql_table, sql_column))]
 pub fn sql_model_macro(input: TokenStream) -> TokenStream {
     // Parse input
     let input = parse_macro_input!(input as DeriveInput);
@@ -19,7 +19,7 @@ pub fn sql_model_macro(input: TokenStream) -> TokenStream {
         Err(err) => return err.write_errors().into(),
     };
 
-    println!("{receiver:?}");
+    let tokens = expand::expand(receiver);
 
-    proc_macro::TokenStream::new()
+    TokenStream::from(tokens)
 }

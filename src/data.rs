@@ -1,12 +1,6 @@
 use darling::{ast::Data, FromDeriveInput, FromField};
 use syn::{Ident, Type};
 
-/// Default to true
-#[inline]
-fn default_true() -> bool {
-    true
-}
-
 #[derive(Debug, FromDeriveInput)]
 #[darling(attributes(sql_table), supports(struct_named))]
 pub struct SqlTable {
@@ -23,7 +17,7 @@ pub struct SqlTable {
 }
 
 #[derive(Debug, FromField)]
-#[darling(attributes(sql_table))]
+#[darling(attributes(sql_column))]
 pub struct TableColumn {
     /// Name of of column
     pub ident: Option<Ident>,
@@ -66,6 +60,17 @@ pub struct TableColumn {
     /// OPTION FOR GENERATING GETTER AND EVERYTHING
     ///
 
-    #[darling(default = "default_true")]
-    pub generate_getter_query: bool,
+    #[darling(default)]
+    pub getter: bool,
+
+    #[darling(default)]
+    pub exclude_insert: bool,
+}
+
+pub struct ForeignKeyConstraint {
+    pub field_name: String,
+    pub referenced_table: String,
+    pub referenced_column: String,
+    pub on_delete: Option<String>,
+    pub on_update: Option<String>,
 }
