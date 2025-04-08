@@ -153,7 +153,7 @@ fn generate_create_table_sql(
     }
 
     // Add columns
-    sql.push_str(&format!(" {} (\n ", table_name));
+    sql.push_str(&format!(" {} (\n", table_name));
     sql.push_str(&columns.join(",\n"));
 
     // Add primary key constraint if exists
