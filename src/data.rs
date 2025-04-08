@@ -1,6 +1,12 @@
 use darling::{ast::Data, FromDeriveInput, FromField};
 use syn::{Ident, Type};
 
+/// Default to true
+#[inline]
+fn default_true() -> bool {
+    true
+}
+
 #[derive(Debug, FromDeriveInput)]
 #[darling(attributes(sql_table), supports(struct_named))]
 pub struct SqlTable {
@@ -33,8 +39,33 @@ pub struct TableColumn {
     pub primary_key: bool,
 
     #[darling(default)]
+    pub not_null: bool,
+
+    #[darling(default)]
+    pub unique: bool,
+
+    #[darling(default)]
+    pub auto_increment: bool,
+
+    #[darling(default)]
     pub column_type: Option<String>,
 
     #[darling(default)]
     pub foreign_key: Option<String>,
+
+    #[darling(default)]
+    pub default: Option<String>,
+
+    #[darling(default)]
+    pub on_update: Option<String>,
+
+    #[darling(default)]
+    pub on_delete: Option<String>,
+
+    ///
+    /// OPTION FOR GENERATING GETTER AND EVERYTHING
+    ///
+
+    #[darling(default = "default_true")]
+    pub generate_getter_query: bool,
 }
