@@ -5,6 +5,16 @@ use syn::Type;
 
 use crate::data::{ForeignKeyConstraint, SqlTable, TableColumn};
 
+/// Converts a Rust type to the corresponding SQL type
+///
+/// Maps common Rust types to their SQL equivalents:
+/// - String types to TEXT
+/// - Integer types (i8, i16, i32) to INTEGER
+/// - Larger integers (i64, u64) to BIGINT
+/// - Floating point types to REAL
+/// - Boolean to BOOLEAN
+/// - UUID to UUID
+/// - All other types default to TEXT
 fn rust_type_to_sql_type(ty: &Type) -> String {
     let type_str = quote! { #ty }.to_string();
 
@@ -21,6 +31,22 @@ fn rust_type_to_sql_type(ty: &Type) -> String {
     }
 }
 
+/// Processes foreign key definitions from table column attributes
+///
+/// Takes a TableColumn that may have a foreign key reference and converts it
+/// into a ForeignKeyConstraint with proper validation.
+///
+/// # Arguments
+///
+/// * `field` - A TableColumn that may contain a foreign key reference
+///
+/// # Returns
+///
+/// * `Option<ForeignKeyConstraint>` - A structured foreign key constraint if one exists
+///
+/// # Panics
+///
+/// Panics if the foreign key reference format is invalid. Expected format is "table.column".
 fn handle_foreign_key(field: &TableColumn) -> Option<ForeignKeyConstraint> {
     // Only process if field has a foreign key reference
     if let Some(foreign_ref) = &field.foreign_key {
@@ -50,6 +76,18 @@ fn handle_foreign_key(field: &TableColumn) -> Option<ForeignKeyConstraint> {
     }
 }
 
+/// Converts a TableColumn to an SQL column definition string
+///
+/// Generates the SQL column definition including name, type, and constraints
+/// such as NOT NULL, UNIQUE, AUTOINCREMENT, and DEFAULT values.
+///
+/// # Arguments
+///
+/// * `field` - The TableColumn to convert
+///
+/// # Returns
+///
+/// A string containing the SQL column definition
 fn field_to_sql_column(field: &TableColumn) -> String {
     // Get the field name from ident
     let field_name = &field.ident.clone().unwrap().to_string();
@@ -83,6 +121,22 @@ fn field_to_sql_column(field: &TableColumn) -> String {
     column_def
 }
 
+/// Generates a complete CREATE TABLE SQL statement
+///
+/// Combines column definitions, primary keys, and foreign key constraints
+/// into a properly formatted CREATE TABLE statement.
+///
+/// # Arguments
+///
+/// * `create_if_exists` - Whether to include "IF NOT EXISTS" in the statement
+/// * `table_name` - Name of the table to create
+/// * `columns` - Array of column definition strings
+/// * `primary_keys` - Array of column names to use as primary keys
+/// * `foreign_keys` - Array of foreign key constraints
+///
+/// # Returns
+///
+/// A string containing the complete CREATE TABLE SQL statement
 fn generate_create_table_sql(
     create_if_exists: bool,
     table_name: &str,
@@ -99,7 +153,7 @@ fn generate_create_table_sql(
     }
 
     // Add columns
-    sql.push_str(&format!(" {} (\n", table_name));
+    sql.push_str(&format!(" {} (\n ", table_name));
     sql.push_str(&columns.join(",\n"));
 
     // Add primary key constraint if exists
@@ -131,6 +185,18 @@ fn generate_create_table_sql(
     sql
 }
 
+/// Main entry point for the SqlTable derive macro
+///
+/// Processes a struct annotated with #[derive(SqlTable)] and generates
+/// the impl block with table_name and create_table_query methods.
+///
+/// # Arguments
+///
+/// * `table_def` - The parsed SqlTable struct with field information
+///
+/// # Returns
+///
+/// A TokenStream containing the implementation for the struct
 pub fn expand(table_def: SqlTable) -> TokenStream {
     // Struct name
     let struct_name = table_def.ident;
