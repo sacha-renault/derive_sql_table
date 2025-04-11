@@ -52,6 +52,11 @@ struct User {
 - Single source of truth for your schema
 - No duplication of model definitions
 
+## TODO
+- [ ] Make the macro usable on many database type
+    - [ ] SQLite
+    - [ ] PostgreSQL
+
 ## License
 
 MIT
